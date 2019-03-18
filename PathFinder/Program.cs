@@ -5,38 +5,23 @@ namespace PathFinder
 {
     class Program
     {
-        //refactor to node and graph classes
-        //find one path
+        //TODO find one path
 
         static void Main(string[] args)
         {
-            //2 start, 3 finish
-            const int mapSize = 8;
-
-            int[,] map = new int[mapSize, mapSize]
-            {
-                {0,0,0,0,1,0,3,0 },
-                {0,0,0,0,1,1,1,0 },
-                {0,0,0,0,1,0,0,0 },
-                {0,0,0,0,1,0,1,1 },
-                {0,0,1,1,1,0,1,0 },
-                {0,1,0,1,0,0,1,0 },
-                {0,1,1,1,0,1,0,0 },
-                {0,1,2,0,0,1,0,0 },
-            };
-
+            GameMap map = new GameMap();
             PathSearcher finder = new PathSearcher(map);
-            List<Tuple<int, int>> result = finder.Find();
+            List<BoardSquare> result = finder.Find();
             PrintResult(result);
 
             Console.ReadLine();
         }
 
-        static void PrintResult(List<Tuple<int, int>> result)
+        static void PrintResult(List<BoardSquare> result)
         {
             for (int i = 0; i < result.Count; i++)
             {
-                Console.WriteLine("{" + result[i].Item1 + ", " + result[i].Item2 + "}");
+                Console.WriteLine("{" + result[i].X + ", " + result[i].Y + "}");
             }
         }
     }

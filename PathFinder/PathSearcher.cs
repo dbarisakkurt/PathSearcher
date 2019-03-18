@@ -5,46 +5,28 @@ namespace PathFinder
 {
     public class PathSearcher
     {
-        private int[,] m_Map;
-        private Dictionary<Tuple<int, int>, bool> m_VisitInfo;
-        private int m_MapSize;
+        private GameMap m_Map;
+        private Dictionary<BoardSquare, bool> m_VisitInfo;
 
-        public PathSearcher(int[,] map)
+        public PathSearcher(GameMap map)
         {
-            if (map.GetLength(0) != 8)
-            {
-                throw new InvalidOperationException("Map must hae 64 size");
-            }
-            if (map.GetLength(0) != map.GetLength(1))
-            {
-                throw new InvalidOperationException("Map must be a square for the given requirements");
-            }
-
             m_Map = map;
-            m_MapSize = m_Map.GetLength(0);
-            m_VisitInfo = new Dictionary<Tuple<int, int>, bool>();
+            m_VisitInfo = new Dictionary<BoardSquare, bool>();
 
-            //assign all nodes to visited = false
-            for (int i = 0; i < m_Map.GetLength(0); i++)
-            {
-                for (int j = 0; j < m_Map.GetLength(1); j++)
-                {
-                    m_VisitInfo[new Tuple<int, int>(i, j)] = false;
-                }
-            }
+            InitVisitInfo();
         }
 
         /// <summary>
         /// Finds the path between start and finish using Breadth First Search
         /// </summary>
-        public List<Tuple<int, int>> Find()
+        public List<BoardSquare> Find()
         {
-            List<Tuple<int, int>> result = new List<Tuple<int, int>>();
+            List<BoardSquare> result = new List<BoardSquare>();
 
-            Tuple<int, int> start = GetStartAndFinishPoints()[0];
-            Tuple<int, int> finish = GetStartAndFinishPoints()[1];
+            BoardSquare start = GetStartAndFinishPoints()[0];
+            BoardSquare finish = GetStartAndFinishPoints()[1];
 
-            Queue<Tuple<int, int>> toBeProcessed = new Queue<Tuple<int, int>>();
+            Queue<BoardSquare> toBeProcessed = new Queue<BoardSquare>();
             toBeProcessed.Enqueue(start);
 
             m_VisitInfo[start] = true;
@@ -68,32 +50,34 @@ namespace PathFinder
                 }
             }
 
-
             return result;
         }
 
-        private List<Tuple<int, int>> GetAllAvailableNeighbours(Tuple<int, int> center)
+        /// <summary>
+        /// Returns all available coordinates in the map for the given board square
+        /// </summary>
+        private List<BoardSquare> GetAllAvailableNeighbours(BoardSquare center)
         {
-            List<Tuple<int, int>> result = new List<Tuple<int, int>>();
+            List<BoardSquare> result = new List<BoardSquare>();
 
-            if ((center.Item1 < m_Map.GetLength(0) && center.Item1 >= 0) &&
-                (center.Item2 < m_Map.GetLength(1) && center.Item2 >= 0))
+            if ((center.X < m_Map.Size && center.X >= 0) &&
+                (center.Y < m_Map.Size && center.Y >= 0))
             {
-                if (center.Item1 - 1 >= 0 && m_Map[center.Item1 - 1, center.Item2] == 0)
+                if (center.X - 1 >= 0 && m_Map.GetContent(center.X - 1, center.Y) == 0)
                 {
-                    result.Add(new Tuple<int, int>(center.Item1 - 1, center.Item2));
+                    result.Add(new BoardSquare(center.X - 1, center.Y));
                 }
-                if (center.Item1 + 1 < m_Map.GetLength(0) && m_Map[center.Item1 + 1, center.Item2] == 0)
+                if (center.X + 1 < m_Map.Size && m_Map.GetContent(center.X + 1, center.Y) == 0)
                 {
-                    result.Add(new Tuple<int, int>(center.Item1 + 1, center.Item2));
+                    result.Add(new BoardSquare(center.X + 1, center.Y));
                 }
-                if (center.Item2 - 1 >= 0 && m_Map[center.Item1, center.Item2 - 1] == 0)
+                if (center.Y - 1 >= 0 && m_Map.GetContent(center.X, center.Y - 1) == 0)
                 {
-                    result.Add(new Tuple<int, int>(center.Item1, center.Item2 - 1));
+                    result.Add(new BoardSquare(center.X, center.Y - 1));
                 }
-                if (center.Item2 + 1 < m_Map.GetLength(1) && m_Map[center.Item1, center.Item2 + 1] == 0)
+                if (center.Y + 1 < m_Map.Size && m_Map.GetContent(center.X, center.Y + 1) == 0)
                 {
-                    result.Add(new Tuple<int, int>(center.Item1, center.Item2 + 1));
+                    result.Add(new BoardSquare(center.X, center.Y + 1));
                 }
             }
 
@@ -105,28 +89,42 @@ namespace PathFinder
             return result;
         }
 
-        private List<Tuple<int, int>> GetStartAndFinishPoints()
+        private List<BoardSquare> GetStartAndFinishPoints()
         {
-            List<Tuple<int, int>> result = new List<Tuple<int, int>>();
-            result.Add(null);
-            result.Add(null);
+            List<BoardSquare> result = new List<BoardSquare>();
+            result.Add(BoardSquare.Null);
+            result.Add(BoardSquare.Null);
 
-            for (int i = 0; i < m_Map.GetLength(0); i++)
+            for (int i = 0; i < m_Map.Size; i++)
             {
-                for (int j = 0; j < m_Map.GetLength(1); j++)
+                for (int j = 0; j < m_Map.Size; j++)
                 {
-                    if (m_Map[i, j] == 2)
+                    if (m_Map.GetContent(i, j) == 2)
                     {
-                        result[0] = new Tuple<int, int>(i, j);
+                        result[0] = new BoardSquare(i, j);
                     }
-                    if (m_Map[i, j] == 3)
+                    if (m_Map.GetContent(i, j) == 3)
                     {
-                        result[1] = new Tuple<int, int>(i, j);
+                        result[1] = new BoardSquare(i, j);
                     }
                 }
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Initialize all visited nodes to false
+        /// </summary>
+        private void InitVisitInfo()
+        {
+            for (int i = 0; i < m_Map.Size; i++)
+            {
+                for (int j = 0; j < m_Map.Size; j++)
+                {
+                    m_VisitInfo[new BoardSquare(i, j)] = false;
+                }
+            }
         }
     }
 }
