@@ -9,24 +9,9 @@ namespace PathFinder
         private string[,] m_Map;
         private BoardSquare m_Square = BoardSquare.Null;
 
-        public GameMap()
+        public GameMap(string[,] map)
         {
-            // _ normal terrain
-            // X elevated terrain
-            // 0 start point
-            // F finish point
-
-            m_Map = new string[c_MapSize, c_MapSize]
-            {
-                {"_","_","_","_","X","_","F","_"},
-                {"_","_","_","_","X","X","X","_"},
-                {"_","_","_","_","X","_","_","_"},
-                {"_","_","_","_","X","_","X","X"},
-                {"_","_","X","X","X","_","X","_"},
-                {"_","X","_","X","_","_","X","_"},
-                {"_","X","X","X","_","X","_","_"},
-                {"_","X","0","_","_","_","_","_"},
-            };
+            m_Map = map;
         }
 
         public BoardSquare GetSpecificSquare(string text)
