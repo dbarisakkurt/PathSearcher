@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace PathFinder
 {
@@ -24,8 +23,6 @@ namespace PathFinder
         /// </summary>
         public List<BoardSquare> Find()
         {
-            List<BoardSquare> result = new List<BoardSquare>();
-
             BoardSquare start = m_Map.GetSpecificSquare("0");
             BoardSquare finish = m_Map.GetSpecificSquare("F");
 
@@ -59,7 +56,15 @@ namespace PathFinder
                 order += 1;
             }
 
-            //Console.WriteLine(m_Map);
+            List<BoardSquare> result = PrepareSolutionPath(start, finish);
+
+            return result;
+        }
+
+        private List<BoardSquare> PrepareSolutionPath(BoardSquare start, BoardSquare finish)
+        {
+            List<BoardSquare> result = new List<BoardSquare>();
+
             BoardSquare temp = GetSmallestValueNeighbour(finish);
             result.Add(temp);
 
@@ -69,12 +74,16 @@ namespace PathFinder
                 result.Add(temp);
             }
 
+            result.Reverse();
             return result;
         }
 
-        private BoardSquare GetSmallestValueNeighbour(BoardSquare finish)
+        /// <summary>
+        /// Picks the square whose numeric value is smallest
+        /// </summary>
+        private BoardSquare GetSmallestValueNeighbour(BoardSquare square)
         {   
-            List<BoardSquare> list = GetAllAvailableNeighboursNumber(finish);
+            List<BoardSquare> list = GetAllNeighboursWhichisPartOfSolution(square);
 
             BoardSquare smallest = list[0];
 
@@ -93,7 +102,12 @@ namespace PathFinder
             return smallest;
         }
 
-        private List<BoardSquare> GetAllAvailableNeighboursNumber(BoardSquare center)
+        /// <summary>
+        /// Gets all neighbours which has a numeric value.
+        /// </summary>
+        /// <param name="center"></param>
+        /// <returns>All neighbours for the given square which has a numeric value</returns>
+        private List<BoardSquare> GetAllNeighboursWhichisPartOfSolution(BoardSquare center)
         {
             List<BoardSquare> result = new List<BoardSquare>();
 

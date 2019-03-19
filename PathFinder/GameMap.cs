@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Text;
 
 namespace PathFinder
@@ -8,8 +7,7 @@ namespace PathFinder
     {
         private const int c_MapSize = 8;
         private string[,] m_Map;
-        private BoardSquare m_Start = BoardSquare.Null;
-        private BoardSquare m_Finish = BoardSquare.Null;
+        private BoardSquare m_Square = BoardSquare.Null;
 
         public GameMap()
         {
@@ -33,25 +31,26 @@ namespace PathFinder
 
         public BoardSquare GetSpecificSquare(string text)
         {
-            if(text != "0" && text != "F")
+            if (text != "0" && text != "F")
             {
                 throw new InvalidOperationException("Only Start and Finish square info can be received");
             }
-
-            if (m_Start.Equals(BoardSquare.Null))
+            if (!m_Square.Equals(BoardSquare.Null))
             {
-                for (int i = 0; i < Size; i++)
+                return m_Square;
+            }
+
+            for (int i = 0; i < Size; i++)
+            {
+                for (int j = 0; j < Size; j++)
                 {
-                    for (int j = 0; j < Size; j++)
+                    if (GetContent(j, i) == text)
                     {
-                        if (GetContent(i, j) == text)
-                        {
-                            return new BoardSquare(i, j);
-                        }
+                        return new BoardSquare(j, i);
                     }
                 }
             }
-            return m_Start;
+            return m_Square;
 
         }
 
@@ -76,12 +75,6 @@ namespace PathFinder
                 for (int j = 0; j < Size; j++)
                 {
                     builder.Append(string.Format("{0,-5}", m_Map[i, j]));
-
-                    if(j!=Size-1)
-                    {
-                        builder.Append(",");
-                    }
-
                 }
                 builder.AppendLine();
             }
